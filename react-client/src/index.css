@@ -1,1 +1,80 @@
 @import "tailwindcss";
+
+@theme {
+  /* Custom fonts */
+  --font-sans: "Inter", system-ui, sans-serif;
+
+  /* Neo-brutalist brand colors - bold and high contrast */
+  --color-brand-50: #f0f4ff;
+  --color-brand-100: #e0e7ff;
+  --color-brand-200: #c7d2fe;
+  --color-brand-300: #a5b4fc;
+  --color-brand-400: #818cf8;
+  --color-brand-500: #6366f1;
+  --color-brand-600: #4f46e5;
+  --color-brand-700: #4338ca;
+  --color-brand-800: #3730a3;
+  --color-brand-900: #312e81;
+
+  /* Premium colors - bold yellow/gold */
+  --color-premium-50: #fffbeb;
+  --color-premium-100: #fef3c7;
+  --color-premium-400: #fbbf24;
+  --color-premium-500: #f59e0b;
+  --color-premium-600: #d97706;
+}
+
+@layer base {
+  * {
+    @apply border-gray-900;
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+
+  button {
+    @apply focus:outline-none focus:ring-4 focus:ring-black focus:ring-offset-2;
+  }
+}
+
+@layer utilities {
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Neo-brutalist shadow utilities */
+  .shadow-brutal {
+    box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+  }
+
+  .shadow-brutal-sm {
+    box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+  }
+
+  .shadow-brutal-lg {
+    box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
+  }
+
+  .shadow-brutal-xl {
+    box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 1);
+  }
+
+  /* Hover states */
+  .hover-brutal:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+  }
+
+  /* Border utilities */
+  .border-brutal {
+    border: 3px solid #000;
+  }
+
+  .border-brutal-sm {
+    border: 2px solid #000;
+  }
+}
