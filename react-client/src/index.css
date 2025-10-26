@@ -77,4 +77,13 @@
   .border-brutal-sm {
     border: 2px solid #000;
   }
+
+  /* ConnectButton styling to match nav links */
+  .navbar-connect-button button {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.875rem !important;
+    font-weight: 900 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.025em !important;
+  }
 }

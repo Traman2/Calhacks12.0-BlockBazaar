@@ -9,25 +9,25 @@ export default function Navbar() {
   const isActive = (path: string) => location.pathname === path
 
   return (
-    <nav className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40">
+    <nav className="bg-white border-b-3 border-black shadow-brutal sticky top-0 z-40">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo Section */}
-          <Link to="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <div className="bg-brand-600 rounded-lg p-2">
+          <Link to="/dashboard" className="flex flex-1 items-center gap-3 hover:opacity-80 transition-opacity">
+            <div className="bg-brand-600 border-2 border-black p-2">
               <Store className="size-5 text-white" />
             </div>
             <div className="hidden sm:block">
               <h1 className="text-lg font-black text-gray-900 uppercase tracking-tight">
                 Block Bazaar
               </h1>
-              <p className="text-xs text-gray-500">Decentralized Content Platform</p>
+              <p className="text-xs text-gray-600 font-bold uppercase">Decentralized Content Platform</p>
             </div>
           </Link>
 
           {/* Center Navigation */}
           {currentAccount && (
-            <div className="flex items-center gap-1">
+            <div className="flex flex-1 items-center justify-center gap-1">
               <NavLink
                 to="/dashboard"
                 icon={<Store className="size-4" />}
@@ -50,17 +50,17 @@ export default function Navbar() {
           )}
 
           {/* Right Section */}
-          <div className="flex items-center gap-3">
+          <div className="flex flex-1 justify-end items-center gap-3">
             {currentAccount ? (
               <>
 
                 {/* Connect Button in nav style */}
-                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <div className="navbar-connect-button border-2 border-black overflow-hidden">
                   <ConnectButton />
                 </div>
               </>
             ) : (
-              <div className="border border-gray-200 rounded-lg overflow-hidden">
+              <div className="navbar-connect-button border-2 border-black overflow-hidden">
                 <ConnectButton />
               </div>
             )}
@@ -80,10 +80,10 @@ function NavLink({ to, icon, label, isActive }: {
   return (
     <Link
       to={to}
-      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+      className={`flex items-center gap-2 px-4 py-2 border-2 border-black font-black text-sm uppercase tracking-tight transition-all ${
         isActive
-          ? 'bg-brand-600 text-white'
-          : 'text-gray-700 hover:bg-gray-100'
+          ? 'bg-brand-600 text-white shadow-brutal-sm'
+          : 'bg-white text-gray-900 hover:shadow-brutal-sm'
       }`}
     >
       {icon}

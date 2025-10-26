@@ -81,13 +81,13 @@ export default function Dashboard() {
                 <Loader2 className="size-8 animate-spin text-brand-600" />
               </div>
             ) : marketplaceTiers.length === 0 ? (
-              <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
+              <div className="bg-white border-brutal shadow-brutal p-12 text-center">
                 <Globe className="size-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-black text-gray-900 mb-2 uppercase tracking-tight">No content available</h3>
                 <p className="text-gray-600 mb-6">There are no new tiers to explore right now. Check back later or create your own!</p>
                 <button
                   onClick={() => setActiveTab('creator')}
-                  className="inline-flex items-center gap-2 bg-brand-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-brand-700 transition-colors"
+                  className="inline-flex items-center gap-2 bg-brand-600 text-white px-6 py-3 border-brutal-sm shadow-brutal-sm hover-brutal font-black uppercase text-sm"
                 >
                   <Plus className="size-4" />
                   Become a Creator
@@ -118,7 +118,7 @@ export default function Dashboard() {
               </div>
               <button
                 onClick={() => setShowCreateTierModal(true)}
-                className="inline-flex items-center gap-2 bg-brand-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-brand-700 transition-colors"
+                className="inline-flex items-center gap-2 bg-brand-600 text-white px-4 py-2 border-brutal-sm shadow-brutal-sm hover-brutal font-black uppercase text-sm"
               >
                 <Plus className="size-4" /> Create Tier
               </button>
@@ -128,13 +128,13 @@ export default function Dashboard() {
                 <Loader2 className="size-8 animate-spin text-brand-600" />
               </div>
             ) : myTiers.length === 0 ? (
-              <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
+              <div className="bg-white border-brutal shadow-brutal p-12 text-center">
                 <Sparkles className="size-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Start creating content</h3>
-                <p className="text-gray-600 mb-6">Create your first subscription tier and start sharing exclusive content with your audience.</p>
+                <h3 className="text-lg font-black text-gray-900 mb-2 uppercase tracking-tight">Start creating content</h3>
+                <p className="text-gray-600 mb-6 font-medium">Create your first subscription tier and start sharing exclusive content with your audience.</p>
                 <button
                   onClick={() => setShowCreateTierModal(true)}
-                  className="inline-flex items-center gap-2 bg-brand-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-brand-700 transition-colors"
+                  className="inline-flex items-center gap-2 bg-brand-600 text-white px-6 py-3 border-brutal-sm shadow-brutal-sm hover-brutal font-black uppercase text-sm"
                 >
                   <Plus className="size-4" />
                   Create Your First Tier
@@ -197,9 +197,9 @@ function TierCard({ tier, onSubscribe }: {
 
   return (
     <div className="bg-white border-brutal shadow-brutal p-6 hover-brutal transition-all">
-      <div className="flex items-start justify-between mb-3">
-        <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight">{tier.name}</h3>
-        <div className="text-2xl font-black text-brand-600">{priceInSui} <span className="text-xs text-gray-500 font-bold">SUI</span></div>
+      <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight mb-3">{tier.name}</h3>
+      <div className="inline-block bg-brand-600 border-2 border-black px-3 py-1 mb-3">
+        <span className="text-sm font-black text-white">{priceInSui} SUI</span>
       </div>
       <p className="text-sm text-gray-700 font-medium mb-4 line-clamp-2">{tier.description}</p>
 
@@ -236,42 +236,42 @@ function CreatorTierCard({ tier, onUpload, onViewContent }: {
   const priceInSui = (Number(tier.price) / 1_000_000_000).toFixed(2)
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg transition-all">
+    <div className="bg-white border-brutal shadow-brutal p-6 hover-brutal transition-all">
       <div className="flex items-start justify-between mb-3">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">{tier.name}</h3>
-          <p className="text-sm text-gray-500">{priceInSui} SUI / {tier.durationDays} days</p>
+          <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight">{tier.name}</h3>
+          <p className="text-sm text-gray-600 font-medium">{priceInSui} SUI / {tier.durationDays} days</p>
         </div>
-        <span className={`px-2 py-1 rounded text-xs font-medium ${
-          tier.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+        <span className={`px-2 py-1 border-2 border-black text-xs font-black uppercase ${
+          tier.isActive ? 'bg-green-400 text-gray-900' : 'bg-gray-200 text-gray-900'
         }`}>
           {tier.isActive ? 'Active' : 'Inactive'}
         </span>
       </div>
-      <p className="text-sm text-gray-600 mb-4 line-clamp-2">{tier.description}</p>
+      <p className="text-sm text-gray-600 font-medium mb-4 line-clamp-2">{tier.description}</p>
 
-      <div className="grid grid-cols-2 gap-4 mb-4 py-4 border-t border-b border-gray-100">
+      <div className="grid grid-cols-2 gap-4 mb-4 py-4 border-t-2 border-b-2 border-black">
         <div className="text-center">
-          <div className="text-2xl font-bold text-gray-900">{tier.subscriberCount}</div>
-          <div className="text-xs text-gray-500">Subscribers</div>
+          <div className="text-2xl font-black text-gray-900">{tier.subscriberCount}</div>
+          <div className="text-xs text-gray-600 font-bold uppercase">Subscribers</div>
         </div>
         <div className="text-center">
-          <div className="text-2xl font-bold text-gray-900">{tier.contentIds.length}</div>
-          <div className="text-xs text-gray-500">Content Items</div>
+          <div className="text-2xl font-black text-gray-900">{tier.contentIds.length}</div>
+          <div className="text-xs text-gray-600 font-bold uppercase">Content Items</div>
         </div>
       </div>
 
       <div className="space-y-2">
         <button
           onClick={onUpload}
-          className="w-full bg-brand-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-brand-700 transition-colors flex items-center justify-center gap-2"
+          className="w-full bg-brand-600 text-white px-4 py-2 border-brutal-sm shadow-brutal-sm hover-brutal font-black uppercase text-sm flex items-center justify-center gap-2"
         >
           <Upload className="size-4" /> Upload Content
         </button>
         {tier.contentIds.length > 0 && (
           <button
             onClick={onViewContent}
-            className="w-full bg-gray-100 text-gray-900 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+            className="w-full bg-gray-100 text-gray-900 px-4 py-2 border-brutal-sm shadow-brutal-sm hover-brutal font-black uppercase text-sm flex items-center justify-center gap-2"
           >
             <Eye className="size-4" /> Manage Content
           </button>
@@ -307,31 +307,31 @@ function CreateTierModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+      <div className="bg-white border-brutal shadow-brutal-xl max-w-md w-full p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Create New Tier</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+          <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tight">Create New Tier</h2>
+          <button onClick={onClose} className="text-gray-600 hover:text-gray-900">
             <X className="size-6" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tier Name</label>
+            <label className="block text-xs font-black text-gray-700 uppercase mb-2">Tier Name</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+              className="w-full px-3 py-2 border-brutal-sm font-medium"
               placeholder="e.g., Premium Access"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label className="block text-xs font-black text-gray-700 uppercase mb-2">Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+              className="w-full px-3 py-2 border-brutal-sm font-medium"
               placeholder="Describe what subscribers will get..."
               rows={3}
               required
@@ -339,24 +339,24 @@ function CreateTierModal({ onClose }: { onClose: () => void }) {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Price (SUI)</label>
+              <label className="block text-xs font-black text-gray-700 uppercase mb-2">Price (SUI)</label>
               <input
                 type="number"
                 step="0.01"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                className="w-full px-3 py-2 border-brutal-sm font-medium"
                 placeholder="0.00"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Duration (days)</label>
+              <label className="block text-xs font-black text-gray-700 uppercase mb-2">Duration (days)</label>
               <input
                 type="number"
                 value={duration}
                 onChange={(e) => setDuration(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                className="w-full px-3 py-2 border-brutal-sm font-medium"
                 placeholder="30"
                 required
               />
@@ -365,7 +365,7 @@ function CreateTierModal({ onClose }: { onClose: () => void }) {
           <button
             type="submit"
             disabled={isPending}
-            className="w-full bg-brand-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-brand-700 transition-colors flex items-center justify-center gap-2"
+            className="w-full bg-brand-600 text-white px-4 py-3 border-brutal-sm shadow-brutal-sm hover-brutal font-black uppercase text-sm flex items-center justify-center gap-2"
           >
             {isPending ? <Loader2 className="size-5 animate-spin" /> : null}
             {isPending ? 'Creating...' : 'Create Tier'}

@@ -12,7 +12,7 @@ export default function Login() {
               <Store className="size-6 text-white" />
             </div>
             <h1 className="text-xl font-black text-gray-900 tracking-tight uppercase">
-              Sui Content Marketplace
+              Block Bazaar
             </h1>
           </div>
         </div>
@@ -30,8 +30,8 @@ export default function Login() {
                 Create subscription tiers, upload encrypted content to Walrus storage, and monetize your work on the Sui blockchain
               </p>
 
-              <div className="inline-block border-brutal-sm shadow-brutal-lg">
-                <ConnectButton />
+              <div className="inline-block bg-white border-brutal-sm shadow-brutal-lg">
+                <ConnectButton/>
               </div>
             </div>
           </div>
