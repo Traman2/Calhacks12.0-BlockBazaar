@@ -25,12 +25,16 @@ export default function Dashboard() {
   const { data: subscriptions = [] } = useUserSubscriptions()
 
   const myTiers = allTiers.filter(t => t.creator === currentAccount?.address)
-  const otherTiers = allTiers.filter(t => t.creator !== currentAccount?.address)
 
   // Check if user has active subscription to a tier
   const hasActiveSubscription = (tierId: string) => {
     return subscriptions.some(sub => sub.tierId === tierId && !sub.isExpired)
   }
+
+  // Filter marketplace: only show tiers from other users that current user hasn't purchased
+  const marketplaceTiers = allTiers.filter(t =>
+    t.creator !== currentAccount?.address && !hasActiveSubscription(t.id)
+  )
 
   const handleSubscribe = (tier: Tier) => {
     setSelectedTier(tier)
@@ -46,50 +50,9 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      <main className="container mx-auto px-6 py-8">
-        {/* Welcome Section */}
-        <div className="bg-white border-brutal shadow-brutal-lg p-6 mb-8">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-3xl font-black text-gray-900 mb-2 uppercase tracking-tight">
-                Marketplace
-              </h1>
-              <p className="text-sm text-gray-600 font-medium">
-                Connected: <code className="bg-gray-900 text-white px-2 py-1 font-mono text-xs font-bold border-2 border-black">
-                  {currentAccount?.address.slice(0, 6)}...{currentAccount?.address.slice(-4)}
-                </code>
-              </p>
-            </div>
-            <div className="bg-brand-600 border-brutal-sm p-3 shadow-brutal-sm">
-              <Sparkles className="size-6 text-white" />
-            </div>
-          </div>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <StatCard
-            icon={<Globe className="size-6" />}
-            label="Total Tiers"
-            value={allTiers.length}
-            color="bg-blue-400"
-          />
-          <StatCard
-            icon={<Sparkles className="size-6" />}
-            label="My Tiers"
-            value={myTiers.length}
-            color="bg-green-400"
-          />
-          <StatCard
-            icon={<Lock className="size-6" />}
-            label="Available"
-            value={otherTiers.length}
-            color="bg-premium-400"
-          />
-        </div>
-
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Tabs */}
-        <div className="flex flex-wrap gap-3 mb-8">
+        <div className="flex gap-2 mb-6 border-b-2 border-black">
           <TabButton
             active={activeTab === 'marketplace'}
             onClick={() => setActiveTab('marketplace')}
@@ -102,27 +65,43 @@ export default function Dashboard() {
           />
         </div>
 
+        {/* Header - Only show for creator dashboard */}
+        {activeTab === 'creator' && (
+          <div className="mb-8">
+            <h1 className="text-3xl font-black text-gray-900 mb-2 uppercase tracking-tight">My Creations</h1>
+            <p className="text-gray-600">Manage your subscription tiers and content</p>
+          </div>
+        )}
+
         {/* Content */}
         {activeTab === 'marketplace' && (
           <div>
-            <h2 className="text-xl font-black text-gray-900 mb-4 uppercase">Available Subscription Tiers</h2>
             {isLoading ? (
-              <div className="flex items-center justify-center py-12">
+              <div className="flex items-center justify-center py-20">
                 <Loader2 className="size-8 animate-spin text-brand-600" />
               </div>
-            ) : otherTiers.length === 0 ? (
-              <div className="bg-white border-brutal shadow-brutal p-8 text-center">
-                <p className="text-gray-600 font-medium">No tiers available yet. Create your own!</p>
+            ) : marketplaceTiers.length === 0 ? (
+              <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
+                <Globe className="size-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-black text-gray-900 mb-2 uppercase tracking-tight">No content available</h3>
+                <p className="text-gray-600 mb-6">There are no new tiers to explore right now. Check back later or create your own!</p>
+                <button
+                  onClick={() => setActiveTab('creator')}
+                  className="inline-flex items-center gap-2 bg-brand-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-brand-700 transition-colors"
+                >
+                  <Plus className="size-4" />
+                  Become a Creator
+                </button>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {otherTiers.map(tier => (
+                {marketplaceTiers.map(tier => (
                   <TierCard
                     key={tier.id}
                     tier={tier}
                     onSubscribe={() => handleSubscribe(tier)}
                     onViewContent={() => navigate(`/tier/${tier.id}`)}
-                    isOwned={hasActiveSubscription(tier.id)}
+                    isOwned={false}
                   />
                 ))}
               </div>
@@ -132,26 +111,32 @@ export default function Dashboard() {
 
         {activeTab === 'creator' && (
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-black text-gray-900 uppercase">My Subscription Tiers</h2>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">My Content Tiers</h2>
+                <p className="text-sm text-gray-600">Manage your subscription offerings</p>
+              </div>
               <button
                 onClick={() => setShowCreateTierModal(true)}
-                className="flex items-center gap-2 bg-brand-600 text-white px-4 py-2 border-brutal-sm shadow-brutal-sm hover-brutal font-black uppercase text-sm"
+                className="inline-flex items-center gap-2 bg-brand-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-brand-700 transition-colors"
               >
                 <Plus className="size-4" /> Create Tier
               </button>
             </div>
             {isLoading ? (
-              <div className="flex items-center justify-center py-12">
+              <div className="flex items-center justify-center py-20">
                 <Loader2 className="size-8 animate-spin text-brand-600" />
               </div>
             ) : myTiers.length === 0 ? (
-              <div className="bg-white border-brutal shadow-brutal p-8 text-center">
-                <p className="text-gray-600 font-medium mb-4">You haven't created any tiers yet.</p>
+              <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
+                <Sparkles className="size-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Start creating content</h3>
+                <p className="text-gray-600 mb-6">Create your first subscription tier and start sharing exclusive content with your audience.</p>
                 <button
                   onClick={() => setShowCreateTierModal(true)}
-                  className="bg-brand-600 text-white px-6 py-3 border-brutal-sm shadow-brutal-sm hover-brutal font-black uppercase text-sm"
+                  className="inline-flex items-center gap-2 bg-brand-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-brand-700 transition-colors"
                 >
+                  <Plus className="size-4" />
                   Create Your First Tier
                 </button>
               </div>
@@ -183,25 +168,6 @@ export default function Dashboard() {
   )
 }
 
-function StatCard({ icon, label, value, color }: {
-  icon: React.ReactNode
-  label: string
-  value: number
-  color: string
-}) {
-  return (
-    <div className="bg-white border-brutal shadow-brutal p-5">
-      <div className="flex items-center justify-between mb-3">
-        <div className={`${color} border-brutal-sm p-2 shadow-brutal-sm`}>
-          {icon}
-        </div>
-        <span className="text-3xl font-black text-gray-900">{value}</span>
-      </div>
-      <p className="text-xs font-bold text-gray-600 uppercase tracking-wide">{label}</p>
-    </div>
-  )
-}
-
 function TabButton({ active, onClick, label }: {
   active: boolean
   onClick: () => void
@@ -210,8 +176,10 @@ function TabButton({ active, onClick, label }: {
   return (
     <button
       onClick={onClick}
-      className={`px-5 py-3 border-brutal-sm font-black uppercase text-sm shadow-brutal-sm hover-brutal transition-all ${
-        active ? 'bg-brand-600 text-white' : 'bg-white text-gray-900'
+      className={`px-6 py-3 font-black text-sm uppercase tracking-tight transition-all border-2 border-black ${
+        active
+          ? 'bg-brand-600 text-white shadow-brutal'
+          : 'bg-white text-gray-900 hover-brutal'
       }`}
     >
       {label}
@@ -219,7 +187,7 @@ function TabButton({ active, onClick, label }: {
   )
 }
 
-function TierCard({ tier, onSubscribe, onViewContent, isOwned }: {
+function TierCard({ tier, onSubscribe }: {
   tier: Tier
   onSubscribe: () => void
   onViewContent: () => void
@@ -228,55 +196,34 @@ function TierCard({ tier, onSubscribe, onViewContent, isOwned }: {
   const priceInSui = (Number(tier.price) / 1_000_000_000).toFixed(2)
 
   return (
-    <div className={`border-brutal shadow-brutal p-6 hover-brutal transition-all ${
-      isOwned ? 'bg-green-50 border-green-500' : 'bg-white'
-    }`}>
-      <div className="flex items-start justify-between mb-2">
-        <h3 className="text-lg font-black text-gray-900 uppercase">{tier.name}</h3>
-        {isOwned && (
-          <div className="flex items-center gap-1 bg-green-400 border-brutal-sm px-2 py-1">
-            <CheckCircle className="size-4" />
-            <span className="text-xs font-black uppercase">Owned</span>
-          </div>
-        )}
+    <div className="bg-white border-brutal shadow-brutal p-6 hover-brutal transition-all">
+      <div className="flex items-start justify-between mb-3">
+        <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight">{tier.name}</h3>
+        <div className="text-2xl font-black text-brand-600">{priceInSui} <span className="text-xs text-gray-500 font-bold">SUI</span></div>
       </div>
-      <p className="text-sm text-gray-600 font-medium mb-4">{tier.description}</p>
-      <div className="space-y-2 mb-4">
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-gray-600 font-medium">Price:</span>
-          <span className="font-black text-gray-900">{priceInSui} SUI</span>
+      <p className="text-sm text-gray-700 font-medium mb-4 line-clamp-2">{tier.description}</p>
+
+      <div className="space-y-2 mb-4 py-4 border-t-2 border-b-2 border-black">
+        <div className="flex items-center gap-2 text-sm text-gray-700 font-medium">
+          <Lock className="size-4" />
+          <span>{tier.contentIds.length} exclusive items</span>
         </div>
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-gray-600 font-medium">Duration:</span>
-          <span className="font-black text-gray-900">{tier.durationDays} days</span>
+        <div className="flex items-center gap-2 text-sm text-gray-700 font-medium">
+          <Globe className="size-4" />
+          <span>{tier.subscriberCount} subscribers</span>
         </div>
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-gray-600 font-medium">Subscribers:</span>
-          <span className="font-black text-gray-900">{tier.subscriberCount}</span>
-        </div>
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-gray-600 font-medium">Content:</span>
-          <span className="font-black text-gray-900">{tier.contentIds.length} items</span>
+        <div className="flex items-center gap-2 text-sm text-gray-700 font-medium">
+          <CheckCircle className="size-4" />
+          <span>{tier.durationDays} days access</span>
         </div>
       </div>
-      <div className="space-y-2">
-        {isOwned ? (
-          <button
-            onClick={onViewContent}
-            className="w-full bg-blue-400 text-gray-900 px-4 py-2 border-brutal-sm shadow-brutal-sm hover-brutal font-black uppercase text-sm flex items-center justify-center gap-2"
-          >
-            <Eye className="size-4" />
-            View Content
-          </button>
-        ) : (
-          <button
-            onClick={onSubscribe}
-            className="w-full bg-brand-600 text-white px-4 py-2 border-brutal-sm shadow-brutal-sm hover-brutal font-black uppercase text-sm"
-          >
-            Subscribe
-          </button>
-        )}
-      </div>
+
+      <button
+        onClick={onSubscribe}
+        className="w-full bg-brand-600 text-white px-4 py-3 border-brutal-sm shadow-brutal font-black uppercase text-sm hover-brutal"
+      >
+        Subscribe Now
+      </button>
     </div>
   )
 }
@@ -289,43 +236,44 @@ function CreatorTierCard({ tier, onUpload, onViewContent }: {
   const priceInSui = (Number(tier.price) / 1_000_000_000).toFixed(2)
 
   return (
-    <div className="bg-white border-brutal shadow-brutal p-6">
-      <div className="flex items-start justify-between mb-2">
-        <h3 className="text-lg font-black text-gray-900 uppercase">{tier.name}</h3>
-        <div className={`px-2 py-1 border-brutal-sm text-xs font-black uppercase ${
-          tier.isActive ? 'bg-green-400' : 'bg-gray-400'
+    <div className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg transition-all">
+      <div className="flex items-start justify-between mb-3">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">{tier.name}</h3>
+          <p className="text-sm text-gray-500">{priceInSui} SUI / {tier.durationDays} days</p>
+        </div>
+        <span className={`px-2 py-1 rounded text-xs font-medium ${
+          tier.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
         }`}>
           {tier.isActive ? 'Active' : 'Inactive'}
+        </span>
+      </div>
+      <p className="text-sm text-gray-600 mb-4 line-clamp-2">{tier.description}</p>
+
+      <div className="grid grid-cols-2 gap-4 mb-4 py-4 border-t border-b border-gray-100">
+        <div className="text-center">
+          <div className="text-2xl font-bold text-gray-900">{tier.subscriberCount}</div>
+          <div className="text-xs text-gray-500">Subscribers</div>
+        </div>
+        <div className="text-center">
+          <div className="text-2xl font-bold text-gray-900">{tier.contentIds.length}</div>
+          <div className="text-xs text-gray-500">Content Items</div>
         </div>
       </div>
-      <p className="text-sm text-gray-600 font-medium mb-4">{tier.description}</p>
-      <div className="space-y-2 mb-4">
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-gray-600 font-medium">Price:</span>
-          <span className="font-black text-gray-900">{priceInSui} SUI</span>
-        </div>
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-gray-600 font-medium">Subscribers:</span>
-          <span className="font-black text-gray-900">{tier.subscriberCount}</span>
-        </div>
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-gray-600 font-medium">Content:</span>
-          <span className="font-black text-gray-900">{tier.contentIds.length} items</span>
-        </div>
-      </div>
+
       <div className="space-y-2">
         <button
           onClick={onUpload}
-          className="w-full bg-blue-400 text-gray-900 px-4 py-2 border-brutal-sm shadow-brutal-sm hover-brutal font-black uppercase text-sm flex items-center justify-center gap-2"
+          className="w-full bg-brand-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-brand-700 transition-colors flex items-center justify-center gap-2"
         >
           <Upload className="size-4" /> Upload Content
         </button>
         {tier.contentIds.length > 0 && (
           <button
             onClick={onViewContent}
-            className="w-full bg-green-400 text-gray-900 px-4 py-2 border-brutal-sm shadow-brutal-sm hover-brutal font-black uppercase text-sm flex items-center justify-center gap-2"
+            className="w-full bg-gray-100 text-gray-900 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
           >
-            <Eye className="size-4" /> View Content
+            <Eye className="size-4" /> Manage Content
           </button>
         )}
       </div>
@@ -359,59 +307,65 @@ function CreateTierModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white border-brutal shadow-brutal-xl max-w-md w-full p-6">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-black text-gray-900 uppercase">Create Tier</h2>
-          <button onClick={onClose} className="text-gray-600 hover:text-gray-900">
+          <h2 className="text-2xl font-bold text-gray-900">Create New Tier</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
             <X className="size-6" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-black text-gray-700 uppercase mb-2">Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Tier Name</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2 border-brutal-sm font-medium"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+              placeholder="e.g., Premium Access"
               required
             />
           </div>
           <div>
-            <label className="block text-xs font-black text-gray-700 uppercase mb-2">Description</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-3 py-2 border-brutal-sm font-medium"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+              placeholder="Describe what subscribers will get..."
               rows={3}
               required
             />
           </div>
-          <div>
-            <label className="block text-xs font-black text-gray-700 uppercase mb-2">Price (SUI)</label>
-            <input
-              type="number"
-              step="0.01"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              className="w-full px-3 py-2 border-brutal-sm font-medium"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-black text-gray-700 uppercase mb-2">Duration (days)</label>
-            <input
-              type="number"
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-              className="w-full px-3 py-2 border-brutal-sm font-medium"
-              required
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Price (SUI)</label>
+              <input
+                type="number"
+                step="0.01"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                placeholder="0.00"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Duration (days)</label>
+              <input
+                type="number"
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                placeholder="30"
+                required
+              />
+            </div>
           </div>
           <button
             type="submit"
             disabled={isPending}
-            className="w-full bg-brand-600 text-white px-4 py-3 border-brutal-sm shadow-brutal-sm hover-brutal font-black uppercase flex items-center justify-center gap-2"
+            className="w-full bg-brand-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-brand-700 transition-colors flex items-center justify-center gap-2"
           >
             {isPending ? <Loader2 className="size-5 animate-spin" /> : null}
             {isPending ? 'Creating...' : 'Create Tier'}

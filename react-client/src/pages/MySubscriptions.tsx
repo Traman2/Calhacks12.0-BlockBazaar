@@ -64,7 +64,7 @@ export default function MySubscriptions() {
 
         {/* Active Subscriptions */}
         <div className="mb-8">
-          <h2 className="text-xl font-black text-gray-900 mb-4 uppercase">Active Subscriptions</h2>
+          <h2 className="text-xl font-black text-gray-900 mb-4 uppercase tracking-tight">Active Subscriptions</h2>
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="size-8 animate-spin text-brand-600" />
@@ -97,7 +97,7 @@ export default function MySubscriptions() {
         {/* Expired Subscriptions */}
         {expiredSubscriptions.length > 0 && (
           <div>
-            <h2 className="text-xl font-black text-gray-900 mb-4 uppercase">Expired Subscriptions</h2>
+            <h2 className="text-xl font-black text-gray-900 mb-4 uppercase tracking-tight">Expired Subscriptions</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {expiredSubscriptions.map(({ subscription, tier }) => (
                 <SubscriptionCard

@@ -1,5 +1,5 @@
 import { ConnectButton } from '@mysten/dapp-kit'
-import { Lock, Wallet, Shield, Zap, Crown } from 'lucide-react'
+import { Lock, Upload, Download, Store } from 'lucide-react'
 
 export default function Login() {
   return (
@@ -9,10 +9,10 @@ export default function Login() {
         <div className="container mx-auto px-6 py-6">
           <div className="flex items-center gap-3">
             <div className="bg-brand-600 border-brutal-sm p-2 shadow-brutal-sm">
-              <Wallet className="size-6 text-white" />
+              <Store className="size-6 text-white" />
             </div>
             <h1 className="text-xl font-black text-gray-900 tracking-tight uppercase">
-              Sui Content Hub
+              Sui Content Marketplace
             </h1>
           </div>
         </div>
@@ -23,11 +23,11 @@ export default function Login() {
           {/* Hero Section */}
           <div className="text-center mb-16">
             <div className="bg-brand-600 border-brutal shadow-brutal-xl p-12 mb-8">
-              <h1 className="text-6xl font-black text-white mb-6 uppercase tracking-tighter">
-                Decentralized<br />Content Platform
+              <h1 className="text-5xl font-black text-white mb-4 uppercase tracking-tight">
+                Decentralized Content<br />Subscription Platform
               </h1>
-              <p className="text-xl text-white font-bold mb-8 opacity-90">
-                Access premium content using SUI blockchain technology
+              <p className="text-lg text-white font-bold mb-8 opacity-90 max-w-2xl mx-auto">
+                Create subscription tiers, upload encrypted content to Walrus storage, and monetize your work on the Sui blockchain
               </p>
 
               <div className="inline-block border-brutal-sm shadow-brutal-lg">
@@ -39,46 +39,50 @@ export default function Login() {
           {/* Features */}
           <div className="grid md:grid-cols-3 gap-6 mb-16">
             <FeatureCard
-              icon={<Wallet className="size-10" />}
-              title="Connect Wallet"
-              description="Use your Sui wallet to authenticate and make payments"
+              icon={<Upload className="size-10" />}
+              title="Create & Monetize"
+              description="Set up subscription tiers and upload content encrypted with SEAL. Set your own prices in SUI."
               color="bg-blue-400"
             />
             <FeatureCard
               icon={<Lock className="size-10" />}
-              title="Premium Content"
-              description="Access exclusive encrypted content with SUI tokens"
+              title="Encrypted Storage"
+              description="All content stored on Walrus decentralized storage with SEAL encryption for maximum privacy."
               color="bg-premium-400"
             />
             <FeatureCard
-              icon={<Shield className="size-10" />}
-              title="Secure & Decentralized"
-              description="Built on Sui blockchain for maximum security"
+              icon={<Download className="size-10" />}
+              title="Subscribe & Access"
+              description="Subscribe to creators using SUI tokens and instantly access their exclusive encrypted content."
               color="bg-green-400"
             />
           </div>
 
-          {/* Content Preview */}
+          {/* How It Works */}
           <div className="bg-white border-brutal shadow-brutal-lg p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="bg-brand-600 border-brutal-sm p-2 shadow-brutal-sm">
-                <Zap className="size-6 text-white" />
-              </div>
-              <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tight">
-                What's Available
-              </h2>
-            </div>
-            <div className="space-y-3">
-              <ContentItem
-                title="5 Free Resources"
-                description="Learn blockchain basics"
-                icon={<Wallet className="size-5" />}
+            <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tight mb-6">
+              How It Works
+            </h2>
+            <div className="space-y-4">
+              <Step
+                number="1"
+                title="Connect Your Sui Wallet"
+                description="Authenticate with your Sui wallet to get started"
               />
-              <ContentItem
-                title="5 Premium Courses"
-                description="Advanced tutorials and guides"
-                icon={<Crown className="size-5" />}
-                isPremium
+              <Step
+                number="2"
+                title="For Creators: Upload Content"
+                description="Create subscription tiers, upload files that are automatically encrypted with SEAL and stored on Walrus"
+              />
+              <Step
+                number="3"
+                title="For Subscribers: Browse & Subscribe"
+                description="Discover creators, subscribe with SUI tokens, and get instant access to decrypt and view content"
+              />
+              <Step
+                number="4"
+                title="Fully Decentralized"
+                description="Everything on Sui blockchain + Walrus storage. No centralized servers, complete ownership."
               />
             </div>
           </div>
@@ -109,28 +113,20 @@ function FeatureCard({ icon, title, description, color }: {
   )
 }
 
-function ContentItem({ title, description, icon, isPremium = false }: {
+function Step({ number, title, description }: {
+  number: string
   title: string
   description: string
-  icon: React.ReactNode
-  isPremium?: boolean
 }) {
   return (
-    <div className="flex items-center justify-between p-4 bg-gray-50 border-brutal-sm">
-      <div className="flex items-center gap-3">
-        <div className={`${isPremium ? 'bg-premium-400' : 'bg-blue-400'} border-2 border-black p-2`}>
-          {icon}
-        </div>
-        <div>
-          <h4 className="font-black text-gray-900 uppercase text-sm tracking-tight">{title}</h4>
-          <p className="text-xs text-gray-600 font-medium">{description}</p>
-        </div>
+    <div className="flex items-start gap-4 p-4 bg-gray-50 border-brutal-sm">
+      <div className="bg-brand-600 border-2 border-black p-3 shadow-brutal-sm shrink-0">
+        <span className="text-2xl font-black text-white">{number}</span>
       </div>
-      {isPremium && (
-        <div className="bg-premium-400 border-brutal-sm px-3 py-1 shadow-brutal-sm">
-          <span className="text-xs font-black text-gray-900 uppercase">Premium</span>
-        </div>
-      )}
+      <div>
+        <h4 className="font-black text-gray-900 uppercase text-sm tracking-tight mb-1">{title}</h4>
+        <p className="text-sm text-gray-600 font-medium">{description}</p>
+      </div>
     </div>
   )
 }

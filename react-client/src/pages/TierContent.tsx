@@ -1,12 +1,13 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useCurrentAccount, useSuiClient } from '@mysten/dapp-kit'
-import { ArrowLeft, Download, Lock, Unlock, Loader2, FileText, Image as ImageIcon, Film, Music, Eye } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { ArrowLeft, Download, Lock, Unlock, Loader2, FileText, Image as ImageIcon, Film, Music, Eye, Presentation } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
 import Navbar from '../components/layout/Navbar'
 import { useTier } from '../hooks/useMarketplace'
 import { useUserSubscriptions } from '../hooks/useUserSubscriptions'
 import { WalrusService } from '../services/walrus.service'
 import { SealService } from '../services/seal.service'
+import { init } from 'pptx-preview'
 
 // Helper function to get file extension from MIME type
 function getFileExtension(mimeType: string): string {
@@ -84,6 +85,7 @@ export default function TierContent() {
   const [loading, setLoading] = useState(true)
   const [decryptingId, setDecryptingId] = useState<string | null>(null)
   const [viewingContent, setViewingContent] = useState<{ url: string; type: string; title: string } | null>(null)
+  const pptxContainerRef = useRef<HTMLDivElement>(null)
 
   // Check if user has access (is creator or has active subscription)
   const hasAccess = tier && (
@@ -98,10 +100,6 @@ export default function TierContent() {
     const fetchContent = async () => {
       setLoading(true)
       try {
-        const packageId = import.meta.env.VITE_MARKETPLACE_PACKAGE_ID
-
-        // Fetch all Content objects
-        // Note: This is a simplified approach. In production, you'd have better indexing
         const objects = await client.multiGetObjects({
           ids: tier.contentIds,
           options: { showContent: true }
@@ -137,12 +135,23 @@ export default function TierContent() {
     fetchContent()
   }, [tierId, tier, client])
 
+  // Helper function to close modal and cleanup
+  const closeModal = () => {
+    if (viewingContent) {
+      URL.revokeObjectURL(viewingContent.url)
+      // Clear pptx container
+      if (pptxContainerRef.current) {
+        pptxContainerRef.current.innerHTML = ''
+      }
+      setViewingContent(null)
+    }
+  }
+
   // Close modal with Escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && viewingContent) {
-        URL.revokeObjectURL(viewingContent.url)
-        setViewingContent(null)
+        closeModal()
       }
     }
     window.addEventListener('keydown', handleEscape)
@@ -182,15 +191,41 @@ export default function TierContent() {
       const { url } = await decryptContent(content)
 
       // Check if content type is viewable in browser
+      const isPowerPoint = content.contentType === 'application/vnd.ms-powerpoint' ||
+                          content.contentType === 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+
       const isViewable = content.contentType.startsWith('image/') ||
                         content.contentType.startsWith('video/') ||
                         content.contentType.startsWith('audio/') ||
-                        content.contentType === 'application/pdf'
+                        content.contentType === 'application/pdf' ||
+                        isPowerPoint
 
       if (isViewable) {
-        // Open in modal for images/videos
-        if (content.contentType.startsWith('image/') || content.contentType.startsWith('video/')) {
+        // Open in modal for images/videos/presentations
+        if (content.contentType.startsWith('image/') ||
+            content.contentType.startsWith('video/')) {
           setViewingContent({ url, type: content.contentType, title: content.title })
+        } else if (isPowerPoint) {
+          // PowerPoint: render using pptx-preview
+          setViewingContent({ url, type: content.contentType, title: content.title })
+
+          // Wait for next render cycle to ensure container is mounted
+          setTimeout(async () => {
+            if (pptxContainerRef.current) {
+              // Convert blob to ArrayBuffer
+              const response = await fetch(url)
+              const arrayBuffer = await response.arrayBuffer()
+
+              // Initialize pptx-preview
+              const pptxPreviewer = init(pptxContainerRef.current, {
+                width: Math.min(window.innerWidth - 100, 1200),
+                height: Math.min(window.innerHeight * 0.8, 800)
+              })
+
+              // Preview the PowerPoint
+              pptxPreviewer.preview(arrayBuffer)
+            }
+          }, 100)
         } else {
           // Open PDFs and audio in new tab
           window.open(url, '_blank')
@@ -222,7 +257,7 @@ export default function TierContent() {
     setDecryptingId(content.id)
 
     try {
-      const { url, blob } = await decryptContent(content)
+      const { url } = await decryptContent(content)
 
       // Get file extension from content type
       const extension = getFileExtension(content.contentType)
@@ -268,40 +303,35 @@ export default function TierContent() {
 
       <main className="container mx-auto px-6 py-8">
         {/* Header */}
-        <div className="bg-white border-brutal shadow-brutal-lg p-6 mb-8">
+        <div className="mb-8">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 font-bold mb-4 hover-brutal transition-all px-3 py-1 border-brutal-sm"
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 font-medium mb-3 text-sm"
           >
             <ArrowLeft className="size-4" />
             Back
           </button>
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-3xl font-black text-gray-900 mb-2 uppercase tracking-tight">
-                {tier.name}
-              </h1>
-              <p className="text-sm text-gray-600 font-medium mb-4">{tier.description}</p>
-              <div className="flex items-center gap-2">
-                {hasAccess ? (
-                  <div className="flex items-center gap-2 bg-green-400 border-brutal-sm px-3 py-1">
-                    <Unlock className="size-4" />
-                    <span className="text-xs font-black uppercase">Access Granted</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 bg-red-400 border-brutal-sm px-3 py-1">
-                    <Lock className="size-4" />
-                    <span className="text-xs font-black uppercase">No Access</span>
-                  </div>
-                )}
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-black text-gray-900 uppercase tracking-tight">
+              {tier.name}
+            </h1>
+            {hasAccess ? (
+              <div className="flex items-center gap-2 bg-green-400 border-2 border-black px-3 py-1">
+                <Unlock className="size-4" />
+                <span className="text-xs font-black uppercase">Access Granted</span>
               </div>
-            </div>
+            ) : (
+              <div className="flex items-center gap-2 bg-red-400 border-2 border-black px-3 py-1">
+                <Lock className="size-4" />
+                <span className="text-xs font-black uppercase">No Access</span>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Content List */}
         <div>
-          <h2 className="text-xl font-black text-gray-900 mb-4 uppercase">Content Library</h2>
+          <h2 className="text-xl font-black text-gray-900 mb-4 uppercase tracking-tight">Content Library</h2>
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="size-8 animate-spin text-brand-600" />
@@ -324,16 +354,101 @@ export default function TierContent() {
               <p className="text-gray-600 font-medium">No content available yet.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {contents.map(content => (
-                <ContentCard
-                  key={content.id}
-                  content={content}
-                  onView={() => handleViewContent(content)}
-                  onDownload={() => handleDownloadContent(content)}
-                  isDecrypting={decryptingId === content.id}
-                />
-              ))}
+            <div className="bg-white border-brutal shadow-brutal overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-gray-100 border-b-2 border-black">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-black text-gray-900 uppercase tracking-tight">Title</th>
+                    <th className="px-4 py-3 text-left text-xs font-black text-gray-900 uppercase tracking-tight">Type</th>
+                    <th className="px-4 py-3 text-left text-xs font-black text-gray-900 uppercase tracking-tight">Size</th>
+                    <th className="px-4 py-3 text-left text-xs font-black text-gray-900 uppercase tracking-tight">Created</th>
+                    <th className="px-4 py-3 text-center text-xs font-black text-gray-900 uppercase tracking-tight">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y-2 divide-black">
+                  {contents.map(content => {
+                    const sizeInMB = (content.sizeBytes / (1024 * 1024)).toFixed(2)
+                    const createdDate = new Date(content.createdAt).toLocaleDateString()
+                    const isDecrypting = decryptingId === content.id
+
+                    const getContentIcon = () => {
+                      if (content.contentType.startsWith('image/')) return <ImageIcon className="size-5" />
+                      if (content.contentType.startsWith('video/')) return <Film className="size-5" />
+                      if (content.contentType.startsWith('audio/')) return <Music className="size-5" />
+                      if (content.contentType === 'application/vnd.ms-powerpoint' ||
+                          content.contentType === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
+                        return <Presentation className="size-5" />
+                      }
+                      return <FileText className="size-5" />
+                    }
+
+                    const getIconColor = () => {
+                      if (content.contentType.startsWith('image/')) return 'bg-blue-400'
+                      if (content.contentType.startsWith('video/')) return 'bg-purple-400'
+                      if (content.contentType.startsWith('audio/')) return 'bg-green-400'
+                      if (content.contentType === 'application/vnd.ms-powerpoint' ||
+                          content.contentType === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
+                        return 'bg-orange-400'
+                      }
+                      return 'bg-gray-400'
+                    }
+
+                    return (
+                      <tr key={content.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-4 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className={`${getIconColor()} border-2 border-black p-2`}>
+                              {getContentIcon()}
+                            </div>
+                            <div>
+                              <div className="font-black text-gray-900 text-sm uppercase">{content.title}</div>
+                              <div className="text-xs text-gray-600 font-medium mt-1">{content.description}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <span className="font-black text-gray-900 uppercase text-sm">.{getFileExtension(content.contentType)}</span>
+                        </td>
+                        <td className="px-4 py-4">
+                          <span className="font-black text-gray-900 text-sm">{sizeInMB} MB</span>
+                        </td>
+                        <td className="px-4 py-4">
+                          <span className="font-black text-gray-900 text-sm">{createdDate}</span>
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="flex items-center justify-center gap-2">
+                            <button
+                              onClick={() => handleViewContent(content)}
+                              disabled={isDecrypting}
+                              className="bg-brand-600 text-white px-4 py-2 border-2 border-black shadow-brutal-sm hover-brutal font-black uppercase text-xs flex items-center gap-2"
+                            >
+                              {isDecrypting ? (
+                                <>
+                                  <Loader2 className="size-4 animate-spin" />
+                                  Loading...
+                                </>
+                              ) : (
+                                <>
+                                  <Eye className="size-4" />
+                                  View
+                                </>
+                              )}
+                            </button>
+                            <button
+                              onClick={() => handleDownloadContent(content)}
+                              disabled={isDecrypting}
+                              className="bg-green-400 text-gray-900 px-3 py-2 border-2 border-black shadow-brutal-sm hover-brutal font-black"
+                              title="Download"
+                            >
+                              <Download className="size-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
@@ -343,17 +458,11 @@ export default function TierContent() {
       {viewingContent && (
         <div
           className="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50"
-          onClick={() => {
-            URL.revokeObjectURL(viewingContent.url)
-            setViewingContent(null)
-          }}
+          onClick={closeModal}
         >
           <div className="relative max-w-7xl w-full max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
             <button
-              onClick={() => {
-                URL.revokeObjectURL(viewingContent.url)
-                setViewingContent(null)
-              }}
+              onClick={closeModal}
               className="absolute -top-12 right-0 text-white bg-black/50 border-2 border-white px-4 py-2 font-black uppercase text-sm hover:bg-white hover:text-black transition-colors"
             >
               Close
@@ -373,89 +482,18 @@ export default function TierContent() {
                   autoPlay
                   className="max-w-full max-h-[80vh] mx-auto"
                 />
+              ) : viewingContent.type === 'application/vnd.ms-powerpoint' ||
+                viewingContent.type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation' ? (
+                <div
+                  ref={pptxContainerRef}
+                  className="w-full mx-auto"
+                  style={{ minHeight: '600px' }}
+                />
               ) : null}
             </div>
           </div>
         </div>
       )}
-    </div>
-  )
-}
-
-function ContentCard({ content, onView, onDownload, isDecrypting }: {
-  content: ContentItem
-  onView: () => void
-  onDownload: () => void
-  isDecrypting: boolean
-}) {
-  const sizeInMB = (content.sizeBytes / (1024 * 1024)).toFixed(2)
-  const createdDate = new Date(content.createdAt).toLocaleDateString()
-
-  const getContentIcon = () => {
-    if (content.contentType.startsWith('image/')) return <ImageIcon className="size-6" />
-    if (content.contentType.startsWith('video/')) return <Film className="size-6" />
-    if (content.contentType.startsWith('audio/')) return <Music className="size-6" />
-    return <FileText className="size-6" />
-  }
-
-  return (
-    <div className="bg-white border-brutal shadow-brutal p-6">
-      <div className="flex items-start gap-3 mb-4">
-        <div className="bg-blue-400 border-brutal-sm p-2 shadow-brutal-sm">
-          {getContentIcon()}
-        </div>
-        <div className="flex-1">
-          <h3 className="text-lg font-black text-gray-900 uppercase mb-1">{content.title}</h3>
-          <p className="text-xs text-gray-600 font-medium">{content.description}</p>
-        </div>
-      </div>
-
-      <div className="space-y-2 mb-4">
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-gray-600 font-medium">Type:</span>
-          <span className="font-black text-gray-900 uppercase">.{getFileExtension(content.contentType)}</span>
-        </div>
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-gray-600 font-medium">Format:</span>
-          <span className="font-black text-gray-900 text-[10px]">{content.contentType}</span>
-        </div>
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-gray-600 font-medium">Size:</span>
-          <span className="font-black text-gray-900">{sizeInMB} MB</span>
-        </div>
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-gray-600 font-medium">Created:</span>
-          <span className="font-black text-gray-900">{createdDate}</span>
-        </div>
-      </div>
-
-      <div className="flex gap-2">
-        <button
-          onClick={onView}
-          disabled={isDecrypting}
-          className="flex-1 bg-brand-600 text-white px-4 py-2 border-brutal-sm shadow-brutal-sm hover-brutal font-black uppercase text-sm flex items-center justify-center gap-2"
-        >
-          {isDecrypting ? (
-            <>
-              <Loader2 className="size-4 animate-spin" />
-              Loading...
-            </>
-          ) : (
-            <>
-              <Eye className="size-4" />
-              View
-            </>
-          )}
-        </button>
-        <button
-          onClick={onDownload}
-          disabled={isDecrypting}
-          className="bg-green-400 text-gray-900 px-3 py-2 border-brutal-sm shadow-brutal-sm hover-brutal font-black"
-          title="Download"
-        >
-          <Download className="size-4" />
-        </button>
-      </div>
     </div>
   )
 }

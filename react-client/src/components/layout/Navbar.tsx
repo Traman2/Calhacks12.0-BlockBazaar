@@ -1,44 +1,43 @@
-import { ConnectButton, useCurrentAccount, useDisconnectWallet } from '@mysten/dapp-kit'
-import { LogOut, Wallet, Home, CheckCircle, User } from 'lucide-react'
+import { ConnectButton, useCurrentAccount } from '@mysten/dapp-kit'
+import { Store, CheckCircle, User } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 
 export default function Navbar() {
   const currentAccount = useCurrentAccount()
-  const { mutate: disconnect } = useDisconnectWallet()
   const location = useLocation()
 
   const isActive = (path: string) => location.pathname === path
 
   return (
-    <nav className="bg-white border-b-4 border-black">
-      <div className="container mx-auto px-6">
-        <div className="flex items-center justify-between h-20">
+    <nav className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
           {/* Logo Section */}
-          <Link to="/dashboard" className="flex items-center gap-3 hover-brutal transition-all">
-            <div className="bg-brand-600 border-brutal-sm p-2 shadow-brutal-sm">
-              <Wallet className="size-6 text-white" />
+          <Link to="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+            <div className="bg-brand-600 rounded-lg p-2">
+              <Store className="size-5 text-white" />
             </div>
-            <div>
-              <h1 className="text-xl font-black text-gray-900 tracking-tight uppercase">
-                Sui Content Hub
+            <div className="hidden sm:block">
+              <h1 className="text-lg font-black text-gray-900 uppercase tracking-tight">
+                Block Bazaar
               </h1>
-              <p className="text-xs text-gray-600 font-medium">Decentralized Platform</p>
+              <p className="text-xs text-gray-500">Decentralized Content Platform</p>
             </div>
           </Link>
 
           {/* Center Navigation */}
           {currentAccount && (
-            <div className="hidden lg:flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <NavLink
                 to="/dashboard"
-                icon={<Home className="size-4" />}
-                label="Marketplace"
+                icon={<Store className="size-4" />}
+                label="Browse"
                 isActive={isActive('/dashboard')}
               />
               <NavLink
                 to="/subscriptions"
                 icon={<CheckCircle className="size-4" />}
-                label="My Subscriptions"
+                label="My Content"
                 isActive={isActive('/subscriptions')}
               />
               <NavLink
@@ -51,28 +50,17 @@ export default function Navbar() {
           )}
 
           {/* Right Section */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {currentAccount ? (
               <>
-                {/* Wallet Address Box */}
-                <div className="hidden md:flex items-center gap-2 bg-gray-100 border-brutal-sm px-4 py-2 shadow-brutal-sm">
-                  <div className="size-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm font-mono font-bold text-gray-900">
-                    {currentAccount.address.slice(0, 6)}...{currentAccount.address.slice(-4)}
-                  </span>
-                </div>
 
-                {/* Disconnect Button */}
-                <button
-                  onClick={() => disconnect()}
-                  className="flex items-center gap-2 bg-white border-brutal-sm px-4 py-2 font-bold text-gray-900 shadow-brutal-sm hover-brutal transition-all"
-                >
-                  <LogOut className="size-4" />
-                  <span className="hidden sm:inline">Disconnect</span>
-                </button>
+                {/* Connect Button in nav style */}
+                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                  <ConnectButton />
+                </div>
               </>
             ) : (
-              <div className="border-brutal-sm shadow-brutal-sm">
+              <div className="border border-gray-200 rounded-lg overflow-hidden">
                 <ConnectButton />
               </div>
             )}
@@ -92,12 +80,14 @@ function NavLink({ to, icon, label, isActive }: {
   return (
     <Link
       to={to}
-      className={`flex items-center gap-2 px-4 py-2 border-brutal-sm font-bold text-sm shadow-brutal-sm hover-brutal transition-all uppercase ${
-        isActive ? 'bg-brand-600 text-white' : 'bg-white text-gray-900'
+      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+        isActive
+          ? 'bg-brand-600 text-white'
+          : 'text-gray-700 hover:bg-gray-100'
       }`}
     >
       {icon}
-      <span>{label}</span>
+      <span className="hidden sm:inline">{label}</span>
     </Link>
   )
 }

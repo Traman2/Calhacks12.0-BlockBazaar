@@ -8,7 +8,9 @@
       "WebFetch(domain:docs.wal.app)",
       "Bash(npm run lint:*)",
       "Bash(sui move:*)",
-      "Bash(sui:*)"
+      "Bash(sui:*)",
+      "Bash(npm install:*)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": [],
     "ask": []

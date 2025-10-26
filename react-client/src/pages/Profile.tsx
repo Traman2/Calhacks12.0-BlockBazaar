@@ -90,7 +90,7 @@ export default function Profile() {
         {/* Creator Stats (only show if user has created tiers) */}
         {myCreatedTiers.length > 0 && (
           <div className="bg-white border-brutal shadow-brutal-lg p-6 mb-8">
-            <h2 className="text-2xl font-black text-gray-900 mb-6 uppercase">Creator Statistics</h2>
+            <h2 className="text-2xl font-black text-gray-900 mb-6 uppercase tracking-tight">Creator Statistics</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <CreatorStatCard
                 icon={<User className="size-5" />}
@@ -122,7 +122,7 @@ export default function Profile() {
 
         {/* Activity Summary */}
         <div className="bg-white border-brutal shadow-brutal-lg p-6">
-          <h2 className="text-2xl font-black text-gray-900 mb-6 uppercase">Activity Summary</h2>
+          <h2 className="text-2xl font-black text-gray-900 mb-6 uppercase tracking-tight">Activity Summary</h2>
           <div className="space-y-4">
             <ActivityItem
               icon={<Calendar className="size-5" />}
@@ -213,7 +213,7 @@ function ActivityItem({ icon, label, value }: {
   )
 }
 
-function calculateAccountAge(address: string): string {
+function calculateAccountAge(_address: string): string {
   // This is a placeholder - in reality you'd track account creation time
   // For now, we'll just return a generic message
   return 'Recent'

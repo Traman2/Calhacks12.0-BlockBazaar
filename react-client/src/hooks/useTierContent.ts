@@ -18,8 +18,6 @@ export interface TierContent {
  * Hook to fetch all content for a specific tier
  */
 export function useTierContent(tierId?: string) {
-  const client = useSuiClient();
-
   return useQuery({
     queryKey: ['tier-content', tierId],
     queryFn: async (): Promise<TierContent[]> => {
@@ -33,20 +31,6 @@ export function useTierContent(tierId?: string) {
       }
 
       try {
-        // Query all Content objects for this tier
-        const result = await client.queryEvents({
-          query: {
-            MoveEventType: `${packageId}::content_registry::Content`
-          }
-        });
-
-        // In production, we'd query Content objects by tier_id
-        // For now, we'll get all shared Content objects and filter
-
-        // This is a workaround - ideally we'd have a better indexing solution
-        // For MVP, we can fetch objects by searching for Content objects
-
-        // Return empty for now - will be populated when content is registered
         return [];
       } catch (error) {
         console.error('Error fetching tier content:', error);
