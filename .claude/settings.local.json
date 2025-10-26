@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "WebSearch"
+      "WebSearch",
+      "WebFetch(domain:docs.walrus.site)",
+      "WebFetch(domain:sdk.mystenlabs.com)",
+      "WebFetch(domain:seal-docs.wal.app)",
+      "WebFetch(domain:docs.wal.app)",
+      "Bash(npm run lint:*)",
+      "Bash(sui move:*)",
+      "Bash(sui:*)"
     ],
     "deny": [],
     "ask": []

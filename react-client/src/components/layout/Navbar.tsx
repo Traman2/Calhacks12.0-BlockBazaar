@@ -1,16 +1,20 @@
 import { ConnectButton, useCurrentAccount, useDisconnectWallet } from '@mysten/dapp-kit'
-import { LogOut, Wallet } from 'lucide-react'
+import { LogOut, Wallet, Home, CheckCircle, User } from 'lucide-react'
+import { Link, useLocation } from 'react-router-dom'
 
 export default function Navbar() {
   const currentAccount = useCurrentAccount()
   const { mutate: disconnect } = useDisconnectWallet()
+  const location = useLocation()
+
+  const isActive = (path: string) => location.pathname === path
 
   return (
     <nav className="bg-white border-b-4 border-black">
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-20">
           {/* Logo Section */}
-          <div className="flex items-center gap-3">
+          <Link to="/dashboard" className="flex items-center gap-3 hover-brutal transition-all">
             <div className="bg-brand-600 border-brutal-sm p-2 shadow-brutal-sm">
               <Wallet className="size-6 text-white" />
             </div>
@@ -20,7 +24,31 @@ export default function Navbar() {
               </h1>
               <p className="text-xs text-gray-600 font-medium">Decentralized Platform</p>
             </div>
-          </div>
+          </Link>
+
+          {/* Center Navigation */}
+          {currentAccount && (
+            <div className="hidden lg:flex items-center gap-2">
+              <NavLink
+                to="/dashboard"
+                icon={<Home className="size-4" />}
+                label="Marketplace"
+                isActive={isActive('/dashboard')}
+              />
+              <NavLink
+                to="/subscriptions"
+                icon={<CheckCircle className="size-4" />}
+                label="My Subscriptions"
+                isActive={isActive('/subscriptions')}
+              />
+              <NavLink
+                to="/profile"
+                icon={<User className="size-4" />}
+                label="Profile"
+                isActive={isActive('/profile')}
+              />
+            </div>
+          )}
 
           {/* Right Section */}
           <div className="flex items-center gap-4">
@@ -52,5 +80,24 @@ export default function Navbar() {
         </div>
       </div>
     </nav>
+  )
+}
+
+function NavLink({ to, icon, label, isActive }: {
+  to: string
+  icon: React.ReactNode
+  label: string
+  isActive: boolean
+}) {
+  return (
+    <Link
+      to={to}
+      className={`flex items-center gap-2 px-4 py-2 border-brutal-sm font-bold text-sm shadow-brutal-sm hover-brutal transition-all uppercase ${
+        isActive ? 'bg-brand-600 text-white' : 'bg-white text-gray-900'
+      }`}
+    >
+      {icon}
+      <span>{label}</span>
+    </Link>
   )
 }
