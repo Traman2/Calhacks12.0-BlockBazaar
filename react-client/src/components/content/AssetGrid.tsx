@@ -1,6 +1,5 @@
 import AssetCard from './AssetCard'
 import type { Asset } from '../../types'
-import { AssetsService } from '../../services/assets.service'
 
 interface AssetGridProps {
   assets: Asset[]
@@ -23,7 +22,7 @@ export default function AssetGrid({ assets, purchasedAssets, onPurchaseSuccess }
         <AssetCard
           key={asset.id}
           asset={asset}
-          hasAccess={AssetsService.hasAccess(asset.id, purchasedAssets)}
+          hasAccess={!asset.isPremium || purchasedAssets.includes(asset.id)}
           onPurchaseSuccess={onPurchaseSuccess}
         />
       ))}
