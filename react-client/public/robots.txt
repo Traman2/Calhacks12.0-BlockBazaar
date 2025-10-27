@@ -1,0 +1,12 @@
+# robots.txt for https://www.block-bazaar.tech/
+
+User-agent: *
+Allow: /
+
+# Disallow specific pages (optional)
+Disallow: /profile
+Disallow: /subscriptions
+Disallow: /tier/
+
+# Sitemap location
+Sitemap: https://www.block-bazaar.tech/sitemap.xml
