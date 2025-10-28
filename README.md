@@ -1,3 +1,7 @@
+# BlockBazaar - CalHacks12.0 
+
+Devpost link: https://devpost.com/software/block-bazaar?ref_content=user-portfolio&ref_feature=in_progress
+
 ## Inspiration
 Our inspiration was to develop a decentralized, creator-centric platform for content monetization. We sought to design a Web-3 application as an alternative to current content monetization platforms like Patreon. 
 
