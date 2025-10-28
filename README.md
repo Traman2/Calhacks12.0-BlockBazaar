@@ -1,5 +1,7 @@
 # BlockBazaar - CalHacks12.0 
 
+<img src="READMEImages/MainScreenREADME.png"/>
+
 Devpost link: https://devpost.com/software/block-bazaar?ref_content=user-portfolio&ref_feature=in_progress
 
 ## Inspiration
